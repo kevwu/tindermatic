@@ -1,16 +1,14 @@
 let request = require("request")
 let moment = require("moment")
 
-
-let express = require("express")
-let app = express()
 let http = require("http")
 let path = require("path")
-let fs = require("fs")
+var fs = require("fs");
 
 console.log("Firing up the Tindermatic...")
 
-var headers = {
+// copied from requests from the app
+let headers = {
 	"User-Agent": "Tinder Android Version 6.1.2",
 	"platform": "android",
 	"os-version": "23",
@@ -18,28 +16,84 @@ var headers = {
 	"app-version": "1910",
 	"host": "api.gotinder.com",
 	"Connection": "Keep-Alive",
-	"X-Auth-Token": "",
+	"X-Auth-Token": "3a3d014c-9c7d-4b47-97e1-5106ba2adbb1",
 }
 
-function getMoreRecs() {
-	request({
-		url: "https://api.gotinder.com/recs/core?locale=en",
-		headers: headers,
-	}, (error, response, body) => {
-		if(error) {
-			console.log(error)
+let srv = http.createServer((request, response) => {
+	// ignore favicon
+	if(request.url.includes("favicon.ico")) {
+		response.end()
+		return
+	}
+
+	var filePath
+	if(request.url === "" || request.url === "/") {
+		filePath = "./static/index.html"
+	} else {
+		filePath = './static/' + request.url;
+	}
+
+	let extName = path.extname(filePath);
+	var contentType = 'text/html';
+	switch (extName) {
+		case '.js':
+			contentType = 'text/javascript';
+			break;
+		case '.css':
+			contentType = 'text/css';
+			break;
+	}
+
+	fs.readFile(filePath, (err, content) => {
+		if(err) {
+			console.log("[ERROR] responding to request:")
+			console.log(err)
+			response.writeHead(500)
+			response.end()
 			return
 		}
 
-		let data = JSON.parse(body)
+		response.writeHead(200, {'Content-Type': contentType})
+		response.end(content, 'utf-8')
+	})
+})
 
-		for(let i = 0; i < data.results.length; i += 1) {
-			evaluateRec(data.results[i].user)
-		}
+let io = require("socket.io")(srv)
+
+srv.listen(8080)
+
+
+io.on("connection", (socket) => {
+	console.log("Connected.")
+
+	socket.on("recs", () => {
+		request({
+			url: "https://api.gotinder.com/recs/core?locale=en",
+			headers: headers,
+		}, (error, response, body) => {
+			if(error) {
+				console.log(error)
+				return
+			}
+
+			let data = JSON.parse(body)
+
+			for(let i = 0; i < data.results.length; i += 1) {
+				// evaluateRec(data.results[i].user)
+			}
+
+			socket.emit("recs", data.results)
+		})
+	})
+
+	socket.on("swipeRight", (data)=> {
 
 	})
-}
 
+	socket.on("swipeLeft", (data)=> {
+
+	})
+})
 
 
 function evaluateRec(rec) {
@@ -87,7 +141,7 @@ function swipe(like, rec) {
 			return
 		}
 
-		data = json.parse(body)
+		data = JSON.parse(body)
 
 		if(data.match) {
 			console.log("[INFO] You matched with this person!")
