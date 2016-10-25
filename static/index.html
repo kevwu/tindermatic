@@ -5,6 +5,7 @@
 	<title>Tindermatic</title>
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="/socket.io/socket.io.js/"></script>
+	<script src="http://momentjs.com/downloads/moment.min.js"></script>
 	<script src="main.js"></script>
 
 	<link rel="stylesheet" type="text/css" href="http://meyerweb.com/eric/tools/css/reset/reset.css"/>
@@ -15,26 +16,27 @@
 	<h1>Tindermatic</h1>
 	<p>With great power comes great responsibility.</p>
 </header>
-<div id="container">
-	<ul id="rec-prototype" class="rec">
-		<img class="rec-image" src="http://images.gotinder.com/541920f20c29bdf845959750/9d1e22b9-d32c-4e6a-8478-c7f7507b0083.jpg" />
+<div id="prototypes">
+	<div id="rec-prototype" class="rec">
 		<h1 class="rec-name">Name</h1>
+		<h1 class="rec-state"></h1>
+		<div class="rec-photos">
+		</div>
 		<ul class="rec-meta">
-			<li>Meta-attribute: asdf</li>
 		</ul>
 
 		<p class="rec-bio">
-
 		</p>
-
-		<a href="#" class="rec-like">
-			❤️
-		</a>
-
-		<a href="#" class="rec-pass">
-			❌
-		</a>
 	</div>
+	<div id="message-prototype">
+		<p class="message-content"></p>
+	</div>
+</div>
+<div id="queue">
+
+</div>
+<div id="container">
+
 </div>
 </body>
 </html>

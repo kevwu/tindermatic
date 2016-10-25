@@ -65,8 +65,9 @@ srv.listen(8080)
 
 io.on("connection", (socket) => {
 	console.log("Connected.")
-
 	socket.on("recs", () => {
+		console.log("Fetching recs.")
+
 		request({
 			url: "https://api.gotinder.com/recs/core?locale=en",
 			headers: headers,
@@ -76,81 +77,65 @@ io.on("connection", (socket) => {
 				return
 			}
 
-			let data = JSON.parse(body)
+			console.log("Recs retrieved, sending to client.")
 
-			for(let i = 0; i < data.results.length; i += 1) {
-				// evaluateRec(data.results[i].user)
-			}
+			let data = JSON.parse(body)
 
 			socket.emit("recs", data.results)
 		})
 	})
 
-	socket.on("swipeRight", (data)=> {
 
+	socket.on("swipeRight", (data)=> {
+		swipe(true, data)
 	})
 
 	socket.on("swipeLeft", (data)=> {
-
+		swipe(false, data)
 	})
+
+	function swipe(like, rec) {
+		let url = "https://api.gotinder.com/"
+
+		if(like) {
+			console.log(`Swiping right on: ${rec.name} (${rec._id})`)
+			url += "like/"
+		} else {
+			console.log(`Swiping left on: ${rec.name} (${rec._id})`)
+			url += "pass/"
+		}
+
+		url += rec._id
+
+		request({
+			url: url,
+			headers: headers,
+		}, (error, response, body) => {
+			if(error) {
+				console.log("[ERROR] Error swiping " + like + " on: ")
+				console.log(rec)
+				console.log(error)
+
+				socket.emit("error")
+				return
+			}
+
+			socket.emit("swipeSuccess", rec)
+
+			data = JSON.parse(body)
+
+			if(data.match) {
+				console.log("[INFO] You matched with this person!")
+				console.log(rec)
+				socket.emit("match", rec)
+			}
+
+			if(data.likes_remaining == 0) {
+				console.log("Out of likes.")
+				socket.emit("outOfLikes")
+			}
+		})
+	}
 })
 
 
-function evaluateRec(rec) {
-	if(rec.bio == "" && rec.schools.length == 0  && rec.jobs.length == 0) {
-		console.log("[INFO] Possible spam bot, auto-swiping left.")
-		console.log(rec)
-		swipe(false, rec)
-
-		return
-	}
-
-	console.log("[INFO] Leaving for you to evaluate: ")
-
-	console.log("====")
-	console.log(rec.name)
-	console.log("Age: " + rec.birth_date)
-	console.log(rec.bio)
-	console.log(rec.schools)
-	console.log(rec.jobs)
-
-
-	console.log("====")
-
-}
-
-function swipe(like, rec) {
-	let url = "https://api.gotinder.com/"
-
-	if(like) {
-		url += "like/"
-	} else {
-		url += "pass/"
-	}
-
-	url += rec._id
-
-	request({
-		url: url,
-		headers: headers,
-	}, (error, response, body) => {
-		if(error) {
-			console.log("[ERROR] Error swiping " + like + " on: ")
-			console.log(rec)
-			console.log(error)
-			return
-		}
-
-		data = JSON.parse(body)
-
-		if(data.match) {
-			console.log("[INFO] You matched with this person!")
-			console.log(rec)
-		}
-
-		if(data.likes_remaining == 0) {
-			console.log("Out of likes.")
-			process.exit(0)
-		}
-	})
-}

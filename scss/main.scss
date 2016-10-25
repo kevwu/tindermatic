@@ -1,4 +1,5 @@
 html {
+	height: 100%;
 	background: #fefefe;
 	box-sizing: border-box;
 	font-family: "Courier New", monospace;
@@ -8,22 +9,43 @@ html {
 	box-sizing: inherit;
 }
 
-body {
-	width: 1024px;
-	margin: 20px auto 0px;
-}
-
 header {
+	padding: 15px;
+	background-color: #eee;
+	width: 300px;
 	h1 {
-		font-size: 36px;
+		font-size: 24px;
 		font-weight: bold;
 	}
 }
 
+#prototypes {
+	display: none;
+}
+
+#queue {
+	display: none;
+}
+
+#container {
+	border: 1px solid #000;
+	width: calc(100% - 300px);
+	margin: 0 auto;
+	float: right;
+	top: 0;
+	bottom: 0;
+	left: 300px;
+	position: absolute;
+	display: block;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
 .rec {
-	display: inline-block;
+	display: block;
 	padding: 10px;
 	border: 1px solid #333;
+	width: 100%;
 	
 	img {
 		width: 240px;
@@ -31,7 +53,11 @@ header {
 	}
 	
 	.rec-name {
+		width: 100%;
+		display: block;
+		text-align: center;
 		font-size: 24px;
 		font-weight: bold;
+		float: left;
 	}
 }
