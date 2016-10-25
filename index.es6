@@ -16,7 +16,7 @@ let headers = {
 	"app-version": "1910",
 	"host": "api.gotinder.com",
 	"Connection": "Keep-Alive",
-	"X-Auth-Token": "3a3d014c-9c7d-4b47-97e1-5106ba2adbb1",
+	"X-Auth-Token": "",
 }
 
 let srv = http.createServer((request, response) => {
@@ -72,7 +72,8 @@ io.on("connection", (socket) => {
 			url: "https://api.gotinder.com/recs/core?locale=en",
 			headers: headers,
 		}, (error, response, body) => {
-			if(error) {
+			if(error || response.statusCode != 200) {
+				console.log("Error: " + response.statusCode)
 				console.log(error)
 				return
 			}
@@ -120,7 +121,10 @@ io.on("connection", (socket) => {
 				return
 			}
 
-			socket.emit("swipeSuccess", rec)
+			socket.emit("swipeSuccess", {
+				like: like,
+				rec: rec,
+			})
 
 			data = JSON.parse(body)
 

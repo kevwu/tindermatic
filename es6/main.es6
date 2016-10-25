@@ -18,7 +18,7 @@ $(() => {
 			$rec.attr("id", rec._id)
 
 			for(let p = 0; p < rec.photos.length; p += 1) {
-				$rec.find(".rec-photos").append($(`<img class="rec-photo" src="${rec.photos[p].url}" />`))
+				// $rec.find(".rec-photos").append($(`<img class="rec-photo" src="${rec.photos[p].url}" />`))
 			}
 
 			$rec.find(".rec-name").text(rec.name)
@@ -47,12 +47,25 @@ $(() => {
 		showMessage("An error occurred. See console.")
 	})
 
-	socket.on("swipeSuccess", (rec) => {
-		showMessage(`Successfully swiped on ${rec.name}.`)
+	socket.on("swipeSuccess", (data) => {
+		console.log(data)
+		let $rec = $("#" + data.rec._id)
+
+		let $recState = $rec.find(".rec-state")
+
+		if($recState.text() == "SWIPING") {
+			if(data.like) {
+				$recState.addClass("good").text("LIKE")
+			} else {
+				$recState.addClass("bad").text("PASS")
+			}
+		}
 	})
 
 	socket.on("match", (rec) => {
-		showMessage(`You matched with ${rec.name}!`)
+		let $rec = $("#" + rec._id)
+
+		$rec.find(".rec-state").addClass("good").text("LIKE")
 	})
 
 
@@ -77,19 +90,23 @@ $(() => {
 			200
 		)
 
-		console.log(currentRec)
+		// check for spam
+		if(rec.bio === "" && rec.schools.length == 0 && rec.jobs.length == 0) {
+			console.log("Spam bot, swiping right")
+
+			$rec.find(".rec-state").addClass("bad").text("SPAM")
+			swipeLeft()
+		}
 	}
 
 	function swipeRight() {
 		socket.emit("swipeRight", currentRec)
-		$currentRec.find(".rec-state").text("LIKE")
 
 		loadFromQueue()
 	}
 
 	function swipeLeft() {
 		socket.emit("swipeLeft", currentRec)
-		$currentRec.find(".rec-state").text("NOPE")
 
 		loadFromQueue()
 	}

@@ -1,3 +1,6 @@
+$green: #3DB015;
+$red: #C9362E;
+
 html {
 	height: 100%;
 	background: #fefefe;
@@ -60,4 +63,45 @@ header {
 		font-weight: bold;
 		float: left;
 	}
+
+	.rec-state {
+		width: 100%;
+		display: block;
+		text-align: center;
+		font-size: 22px;
+		font-weight: bold;
+
+		&::before {
+			content: "[";
+		}
+
+		&::after {
+			content: "]";
+		}
+	}
+
+	.rec-photos {
+		display: block;
+		width: 100%;
+		padding: 15px;
+	}
+
+	.rec-meta {
+		padding-left: 10px;
+		list-style-type: circle;
+		color: #222;
+	}
+
+	.rec-bio {
+		padding: 15px;
+	}
+
+}
+
+.bad {
+	color: $red;
+}
+
+.good {
+	color: $green;
 }
