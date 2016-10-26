@@ -4,13 +4,14 @@ $(() => {
 	let currentRec = {}
 	let $currentRec = {}
 
+	let blacklist = ["17", "NSAfinder"]
+
 	socket.emit("recs")
 
 	socket.on("recs", (data) => {
 		// append rec
 
 		for(let i = 0; i < data.length; i += 1) {
-			console.log(rec)
 			let rec = data[i].user
 			recs[rec._id] = rec
 
@@ -18,7 +19,11 @@ $(() => {
 			$rec.attr("id", rec._id)
 
 			for(let p = 0; p < rec.photos.length; p += 1) {
-				// $rec.find(".rec-photos").append($(`<img class="rec-photo" src="${rec.photos[p].url}" />`))
+				$rec.find(".rec-photos").append($(`<img class="rec-photo" src="${rec.photos[p].url}" />`))
+			}
+
+			for(let s = 0; s < rec.schools.length; s += 1) {
+				$rec.find(".rec-meta").append($(`<li>School: ${rec.schools[s].name}</li>`))
 			}
 
 			$rec.find(".rec-name").text(rec.name)
@@ -27,7 +32,7 @@ $(() => {
 
 			$rec.find(".rec-meta").append($(`<li>Age: ${moment(rec.birth_date).fromNow(true)}</li>`))
 			$rec.find(".rec-meta").append($(`<li>Last ping: ${moment(rec.ping_time).fromNow()}</li>`))
-			$rec.find(".rec-meta").append($(`<li>Distance: ${rec.distance_mi}</li>`))
+			$rec.find(".rec-meta").append($(`<li>Distance: ${rec.distance_mi} miles</li>`))
 			if(rec.spotify_theme_track) {
 				$rec.find(".rec-meta").append($(`<li>Anthem: ${rec.spotify_theme_track.artists[0].name}: ${rec.spotify_theme_track.name}</li>`))
 			}
@@ -48,7 +53,6 @@ $(() => {
 	})
 
 	socket.on("swipeSuccess", (data) => {
-		console.log(data)
 		let $rec = $("#" + data.rec._id)
 
 		let $recState = $rec.find(".rec-state")
@@ -65,7 +69,9 @@ $(() => {
 	socket.on("match", (rec) => {
 		let $rec = $("#" + rec._id)
 
-		$rec.find(".rec-state").addClass("good").text("LIKE")
+		alert("You matched with " + rec.name + "!")
+
+		$rec.find(".rec-state").addClass("good").text("MATCH")
 	})
 
 
@@ -90,9 +96,12 @@ $(() => {
 			200
 		)
 
+		console.log(currentRec)
+
 		// check for spam
-		if(rec.bio === "" && rec.schools.length == 0 && rec.jobs.length == 0) {
-			console.log("Spam bot, swiping right")
+		if(currentRec.bio === "" && currentRec.schools.length == 0 && currentRec.jobs.length == 0) {
+			console.log("Spam bot, swiping left:")
+			console.log(currentRec)
 
 			$rec.find(".rec-state").addClass("bad").text("SPAM")
 			swipeLeft()
