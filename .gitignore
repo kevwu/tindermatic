@@ -4,3 +4,6 @@ node_modules/
 # Ignore all static files except index
 static/
 !static/index.html
+
+# config file (see config-sample.json for template)
+config.json

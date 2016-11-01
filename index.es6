@@ -3,7 +3,9 @@ let moment = require("moment")
 
 let http = require("http")
 let path = require("path")
-var fs = require("fs");
+let fs = require("fs");
+
+let config = require("./config.json")
 
 console.log("Firing up the Tindermatic...")
 
@@ -16,7 +18,7 @@ let headers = {
 	"app-version": "1910",
 	"host": "api.gotinder.com",
 	"Connection": "Keep-Alive",
-	"X-Auth-Token": "",
+	"X-Auth-Token": config.token,
 }
 
 let srv = http.createServer((request, response) => {
@@ -65,6 +67,10 @@ srv.listen(8080)
 
 io.on("connection", (socket) => {
 	console.log("Connected.")
+
+	// send blacklist
+	socket.emit("blacklist", config.blacklist)
+
 	socket.on("recs", () => {
 		console.log("Fetching recs.")
 

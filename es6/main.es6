@@ -4,7 +4,7 @@ $(() => {
 	let currentRec = {}
 	let $currentRec = {}
 
-	let blacklist = ["17", "NSAfinder"]
+	let blacklist = []
 
 	socket.emit("recs")
 
@@ -41,6 +41,10 @@ $(() => {
 		}
 
 		loadFromQueue()
+	})
+
+	socket.on("blacklist", (data) => {
+		blacklist = data
 	})
 
 	socket.on("outOfLikes", () => {
@@ -105,6 +109,15 @@ $(() => {
 
 			$rec.find(".rec-state").addClass("bad").text("SPAM")
 			swipeLeft()
+		}
+
+		// check against blacklist
+		for(let i = 0; i < blacklist.length; i += 1) {
+			let regex = new RegExp('\b' + blacklist[i] + '\b', "gi")
+
+			if(regex.test(currentRec.bio)) {
+				console.log("Bio matches blacklist word: " + blacklist[i])
+			}
 		}
 	}
 
