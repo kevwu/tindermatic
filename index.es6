@@ -68,8 +68,13 @@ srv.listen(8080)
 io.on("connection", (socket) => {
 	console.log("Connected.")
 
+	// TODO fix race condition between blacklist/whitelist and recs
+
 	// send blacklist
 	socket.emit("blacklist", config.blacklist)
+
+	// send whitelist
+	socket.emit("whitelist", config.whitelist)
 
 	socket.on("recs", () => {
 		console.log("Fetching recs.")

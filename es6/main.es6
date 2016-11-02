@@ -5,8 +5,12 @@ $(() => {
 	let $currentRec = {}
 
 	let blacklist = []
+	let whitelist = []
 
-	socket.emit("recs")
+	// kludgy way to avoid a race condition, fix later
+	setTimeout(() => {
+		socket.emit("recs")
+	}, 500)
 
 	socket.on("recs", (data) => {
 		// append rec
@@ -27,7 +31,52 @@ $(() => {
 			}
 
 			$rec.find(".rec-name").text(rec.name)
-			$rec.find(".rec-bio").text(rec.bio)
+
+			if(rec.bio === "") {
+				$rec.find(".rec-bio").addClass("bad").text("[NO BIO]")
+			} else {
+				// process bio
+				let bioWords = rec.bio.split(/\s+/g)
+				let bio = ""
+
+				for(let w = 0; w < bioWords.length; w += 1) {
+					console.log(bioWords[w])
+					let wordMatched = false
+
+					for(let wl = 0; wl < whitelist.length; wl += 1) {
+						if(!wordMatched && bioWords[w].toLowerCase().includes(whitelist[wl].toLowerCase())) {
+							console.log(bioWords[w] + " matched " + whitelist[wl])
+
+							wordMatched = true
+
+							bio += `<span class="good">${bioWords[w]} </span>`
+
+							break
+						}
+					}
+
+					for(let bl = 0; bl < blacklist.length; bl += 1) {
+						if(!wordMatched && bioWords[w].toLowerCase().includes(blacklist[bl].toLowerCase())) {
+							console.log(bioWords[w] + " matched " + blacklist[bl])
+
+							wordMatched = true
+
+							bio += `<span class="bad">${bioWords[w]} </span>`
+
+							break
+						}
+					}
+
+					if(!wordMatched) {
+						bio += `${bioWords[w]} `
+					}
+				}
+
+
+				$rec.find(".rec-bio").html(bio)
+
+			}
+
 
 
 			$rec.find(".rec-meta").append($(`<li>Age: ${moment(rec.birth_date).fromNow(true)}</li>`))
@@ -45,6 +94,10 @@ $(() => {
 
 	socket.on("blacklist", (data) => {
 		blacklist = data
+	})
+
+	socket.on("whitelist", (data) => {
+		whitelist = data
 	})
 
 	socket.on("outOfLikes", () => {
@@ -81,7 +134,7 @@ $(() => {
 
 	// load next rec from queue, make it the current rec
 	function loadFromQueue() {
-		if($("#queue .rec").length == 0) {
+		if($("#queue").find(".rec").length == 0) {
 			socket.emit("recs")
 			return
 		}
@@ -109,15 +162,11 @@ $(() => {
 
 			$rec.find(".rec-state").addClass("bad").text("SPAM")
 			swipeLeft()
+			return
 		}
 
-		// check against blacklist
-		for(let i = 0; i < blacklist.length; i += 1) {
-			let regex = new RegExp('\b' + blacklist[i] + '\b', "gi")
-
-			if(regex.test(currentRec.bio)) {
-				console.log("Bio matches blacklist word: " + blacklist[i])
-			}
+		if($("#auto-right").is(":checked")) {
+			swipeRight()
 		}
 	}
 

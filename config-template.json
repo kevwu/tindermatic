@@ -1,4 +1,5 @@
 {
 	"token": "x-auth-token goes here",
-	"blacklist": ["list","of","words","to","swipe","left","on"]
+	"blacklist": ["list","of","words","you","dont","want"],
+	"whitelist": ["list", "of", "words","you","want"]
 }
