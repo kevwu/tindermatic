@@ -76,6 +76,9 @@ io.on("connection", (socket) => {
 	// send whitelist
 	socket.emit("whitelist", config.whitelist)
 
+	// send school preference
+	socket.emit("school", config.school)
+
 	socket.on("recs", () => {
 		console.log("Fetching recs.")
 

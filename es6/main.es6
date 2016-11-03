@@ -7,6 +7,8 @@ $(() => {
 	let blacklist = []
 	let whitelist = []
 
+	let school = {}
+
 	// kludgy way to avoid a race condition, fix later
 	setTimeout(() => {
 		socket.emit("recs")
@@ -27,7 +29,11 @@ $(() => {
 			}
 
 			for(let s = 0; s < rec.schools.length; s += 1) {
-				$rec.find(".rec-meta").append($(`<li>School: ${rec.schools[s].name}</li>`))
+				if(rec.schools[s].id == school.id) {
+					$rec.find(".rec-meta").append($(`<li class="good">School: ${rec.schools[s].name}</li>`))
+				} else {
+					$rec.find(".rec-meta").append($(`<li>School: ${rec.schools[s].name}</li>`))
+				}
 			}
 
 			$rec.find(".rec-name").text(rec.name)
@@ -98,6 +104,10 @@ $(() => {
 
 	socket.on("whitelist", (data) => {
 		whitelist = data
+	})
+
+	socket.on("school", (data) => {
+		school = data
 	})
 
 	socket.on("outOfLikes", () => {

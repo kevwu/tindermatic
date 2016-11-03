@@ -1,5 +1,9 @@
 {
 	"token": "x-auth-token goes here",
 	"blacklist": ["list","of","words","you","dont","want"],
-	"whitelist": ["list", "of", "words","you","want"]
+	"whitelist": ["list", "of", "words","you","want"],
+	"school": {
+		"id": "School id number (from FB API, presumably)",
+		"name": "Name of school, optional. Only one school supported right now."
+	}
 }
