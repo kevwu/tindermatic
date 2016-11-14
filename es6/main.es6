@@ -7,6 +7,8 @@ $(() => {
 	let blacklist = []
 	let whitelist = []
 
+	let likesUsed = 0
+
 	let school = {}
 
 	// kludgy way to avoid a race condition, fix later
@@ -113,6 +115,8 @@ $(() => {
 	socket.on("outOfLikes", () => {
 		showMessage("You are out of likes!")
 		alert("You are out of likes!")
+
+		$("#auto-right").attr("checked", false)
 	})
 
 	socket.on("error", () => {
@@ -127,6 +131,9 @@ $(() => {
 		if($recState.text() == "SWIPING") {
 			if(data.like) {
 				$recState.addClass("good").text("LIKE")
+
+				likesUsed += 1
+				$("#likes-used").text(likesUsed)
 			} else {
 				$recState.addClass("bad").text("PASS")
 			}
