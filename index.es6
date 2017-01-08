@@ -11,11 +11,11 @@ console.log("Firing up the Tindermatic...")
 
 // copied from requests from the app
 let headers = {
-	"User-Agent": "Tinder Android Version 6.1.2",
+	"User-Agent": "Tinder Android Version 6.7.1",
 	"platform": "android",
 	"os-version": "23",
 	"Accept-Language": "en",
-	"app-version": "1910",
+	"app-version": "1983",
 	"host": "api.gotinder.com",
 	"Connection": "Keep-Alive",
 	"X-Auth-Token": config.token,
@@ -60,10 +60,26 @@ let srv = http.createServer((request, response) => {
 	})
 })
 
+// update location
+request.post({
+	url: "https://api.gotinder.com/user/ping",
+	headers: headers,
+	json: true,
+	body: config.location,
+}, (error, response, body) => {
+	if(error) {
+		console.log("Error:")
+		console.log(error)
+		return
+	}
+
+	console.log("Apparent success:")
+	console.log(body)
+})
+
 let io = require("socket.io")(srv)
 
 srv.listen(8080)
-
 
 io.on("connection", (socket) => {
 	console.log("Connected.")
