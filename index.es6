@@ -73,7 +73,6 @@ request.post({
 		return
 	}
 
-	console.log("Apparent success:")
 	console.log(body)
 })
 
